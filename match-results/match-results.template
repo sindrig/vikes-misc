@@ -25,7 +25,7 @@
                 "FunctionName": "MatchFetcher",
                 "Description": "Fetch matches and update S3",
                 "Handler": "main.handler",
-                "MemorySize": "150",
+                "MemorySize": "512",
                 "Timeout": "300",
                 "Role": {
                     "Fn::GetAtt": [
