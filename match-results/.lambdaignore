@@ -3,3 +3,4 @@ Makefile
 .lambdaignore
 requirements.txt
 *__pycache__*
+build.py

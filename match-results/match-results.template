@@ -19,7 +19,7 @@
         }
     },
     "Resources": {
-        "Fetcher": {
+        "MatchFetcherLambdaFunction": {
             "Type": "AWS::Lambda::Function",
             "Properties": {
                 "FunctionName": "MatchFetcher",
@@ -41,110 +41,162 @@
                 },
                 "Runtime": "python3.6",
                 "Environment": {
-                 "Variables": {
-                    "RESULT_BUCKET": { "Ref": "S3BucketName" }
-                }
-            }
-        }
-    },
-    "ResultBucket": {
-        "Type" : "AWS::S3::Bucket",
-        "Properties": {
-            "BucketName": {"Ref": "S3BucketName"},
-            "AccessControl": "PublicRead",
-            "WebsiteConfiguration": {
-                "IndexDocument": "index.html",
-                "ErrorDocument": "error.html"
-            }
-        }
-    },
-    "BucketPolicy": {
-        "Type": "AWS::S3::BucketPolicy",
-        "Properties": {
-            "PolicyDocument": {
-                "Id": "ResultBucketAllowPolicy",
-                "Version": "2012-10-17",
-                "Statement": [
-                    {
-                        "Sid": "PublicReadForGetBucketObjects",
-                        "Effect": "Allow",
-                        "Principal": "*",
-                        "Action": "s3:GetObject",
-                        "Resource": {
-                            "Fn::Join": [
-                                "",
-                                [
-                                    "arn:aws:s3:::",
-                                    {
-                                        "Ref": "S3BucketName"
-                                    },
-                                    "/*"
-                                ]
-                            ]
+                    "Variables": {
+                        "RESULT_BUCKET": {
+                            "Ref": "S3BucketName"
                         }
                     }
-                ]
-            },
-            "Bucket": {
-                "Ref": "S3BucketName"
-            }
-        }
-    },
-    "DNS": {
-        "Type": "AWS::Route53::RecordSet",
-        "Properties": {
-            "HostedZoneName": {
-                "Fn::Join": ["", [{"Ref": "RootDomainName"}, "."]]
-            },
-            "Comment": "Alias for s3 website",
-            "Name": {"Ref": "S3BucketName"},
-            "Type": "A",
-            "AliasTarget": {
-                "DNSName": "s3-website-us-east-1.amazonaws.com",
-                "HostedZoneId": "Z3AQBSTGFYJSTF"
-            }
-        }
-    },
-    "ExecutionRole": {
-        "Type": "AWS::IAM::Role",
-        "Properties": {
-            "AssumeRolePolicyDocument": {
-                "Statement": {
-                    "Effect": "Allow",
-                    "Principal": {
-                        "Service": "lambda.amazonaws.com"
-                    },
-                    "Action": "sts:AssumeRole"
                 }
-            },
-            "Policies": [
-                {
-                    "PolicyName": "ReadWriteBucket",
-                    "PolicyDocument": {
-                        "Statement": {
+            }
+        },
+        "ResultBucket": {
+            "Type": "AWS::S3::Bucket",
+            "Properties": {
+                "BucketName": {
+                    "Ref": "S3BucketName"
+                },
+                "AccessControl": "PublicRead",
+                "WebsiteConfiguration": {
+                    "IndexDocument": "index.html",
+                    "ErrorDocument": "error.html"
+                }
+            }
+        },
+        "BucketPolicy": {
+            "Type": "AWS::S3::BucketPolicy",
+            "Properties": {
+                "PolicyDocument": {
+                    "Id": "ResultBucketAllowPolicy",
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Sid": "PublicReadForGetBucketObjects",
                             "Effect": "Allow",
-                            "Action": [
-                                "s3:GetObject",
-                                "s3:PutObject",
-                                "s3:PutObjectAcl"
-                            ],
+                            "Principal": "*",
+                            "Action": "s3:GetObject",
                             "Resource": {
                                 "Fn::Join": [
                                     "",
                                     [
                                         "arn:aws:s3:::",
                                         {
-                                            "Ref": "ResultBucket"
+                                            "Ref": "S3BucketName"
                                         },
                                         "/*"
                                     ]
                                 ]
                             }
                         }
-                    }
+                    ]
+                },
+                "Bucket": {
+                    "Ref": "S3BucketName"
                 }
-            ]
+            }
+        },
+        "DNS": {
+            "Type": "AWS::Route53::RecordSet",
+            "Properties": {
+                "HostedZoneName": {
+                    "Fn::Join": [
+                        "",
+                        [
+                            {
+                                "Ref": "RootDomainName"
+                            },
+                            "."
+                        ]
+                    ]
+                },
+                "Comment": "Alias for s3 website",
+                "Name": {
+                    "Ref": "S3BucketName"
+                },
+                "Type": "A",
+                "AliasTarget": {
+                    "DNSName": "s3-website-us-east-1.amazonaws.com",
+                    "HostedZoneId": "Z3AQBSTGFYJSTF"
+                }
+            }
+        },
+        "CronRule": {
+            "Type": "AWS::Events::Rule",
+            "Properties": {
+                "Description": "Schedules running of lambda vikes-result",
+                "Name": "VikesResultCron",
+                "ScheduleExpression": "rate(1 minute)",
+                "Targets": [
+                    {
+                        "Id": "CronScheduler",
+                        "Arn": {
+                            "Fn::GetAtt": [
+                                "MatchFetcherLambdaFunction",
+                                "Arn"
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        "InvokeLambdaPermission": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+                "FunctionName": {
+                    "Fn::GetAtt": [
+                        "MatchFetcherLambdaFunction",
+                        "Arn"
+                    ]
+                },
+                "Action": "lambda:InvokeFunction",
+                "Principal": "events.amazonaws.com",
+                "SourceArn": {
+                    "Fn::GetAtt": [
+                        "CronRule",
+                        "Arn"
+                    ]
+                }
+            }
+        },
+        "ExecutionRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Statement": {
+                        "Effect": "Allow",
+                        "Principal": {
+                            "Service": "lambda.amazonaws.com"
+                        },
+                        "Action": "sts:AssumeRole"
+                    }
+                },
+                "Policies": [
+                    {
+                        "PolicyName": "ReadWriteBucket",
+                        "PolicyDocument": {
+                            "Statement": {
+                                "Effect": "Allow",
+                                "Action": [
+                                    "s3:GetObject",
+                                    "s3:PutObject",
+                                    "s3:PutObjectAcl"
+                                ],
+                                "Resource": {
+                                    "Fn::Join": [
+                                        "",
+                                        [
+                                            "arn:aws:s3:::",
+                                            {
+                                                "Ref": "ResultBucket"
+                                            },
+                                            "/*"
+                                        ]
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                ]
+            }
         }
     }
-}
 }

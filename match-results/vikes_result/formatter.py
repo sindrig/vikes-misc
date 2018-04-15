@@ -1,3 +1,4 @@
+import datetime
 import os
 
 from jinja2 import Environment, FileSystemLoader
@@ -25,4 +26,7 @@ environment.filters['timeformat'] = timeformat
 
 
 def get_html(matches):
-    return environment.get_template('matches.html').render(matches=matches)
+    return environment.get_template('matches.html').render(
+        matches=matches,
+        now=datetime.datetime.now(),
+    )
