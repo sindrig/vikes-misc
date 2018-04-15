@@ -1,0 +1,31 @@
+<html>
+    <head>
+        <title>Úrslit leikja Víkings</title>
+    </head>
+    <body>
+        <table>
+            <tr>
+                <th>Leikdagur</th>
+                <th>Tími</th>
+                <th>Flokkur</th>
+                <th>Mót</th>
+                <th>Völlur</th>
+                <th>Heimalið</th>
+                <th>Gestir</th>
+                <th>Úrslit</th>
+            </tr>
+            {% for match in matches %}
+                <tr>
+                    <td>{{match.date|dateformat}}</td>
+                    <td>{{match.date|timeformat}}</td>
+                    <td>{{match.group}}</td>
+                    <td>{{match.competition}}</td>
+                    <td>{{match.ground}}</td>
+                    <td>{{match.home_team}}</td>
+                    <td>{{match.away_team}}</td>
+                    <td>{{match.home_score}} - {{match.away_score}}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </body>
+</html>

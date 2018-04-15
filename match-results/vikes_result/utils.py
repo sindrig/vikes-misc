@@ -23,6 +23,8 @@ def get_games(module, f, t):
             home_score=game.UrslitHeima,
             away_score=game.UrslitUti,
             date=game.LeikDagur,
+            competition=game.MotNafn,
+            ground=game.VollurNafn,
         )
         for game in result.ArrayFelogLeikir.FelogLeikir
         if game.UrslitHeima and game.UrslitUti

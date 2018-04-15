@@ -17,4 +17,4 @@ def handler(json_input, context):
 
 
 if __name__ == '__main__':
-    handler()
+    handler(None, None)
