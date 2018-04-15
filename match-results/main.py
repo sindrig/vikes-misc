@@ -11,9 +11,8 @@ RESULT_BUCKET = os.getenv('RESULT_BUCKET')
 def handler(json_input, context):
     f = datetime.datetime.now() - datetime.timedelta(days=30)
     t = datetime.datetime.now()
-    hsi_games = get_games(hsi, f, t)
-    ksi_games = get_games(ksi, f, t)
-    upload_matches(RESULT_BUCKET, hsi_games + ksi_games)
+    games = get_games(f, t, hsi, ksi)
+    upload_matches(RESULT_BUCKET, games)
 
 
 if __name__ == '__main__':
