@@ -1,6 +1,5 @@
 Makefile
 *.template
-*suds*
 .lambdaignore
 requirements.txt
 *__pycache__*

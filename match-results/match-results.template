@@ -7,6 +7,11 @@
             "Type": "String",
             "Default": "vikes-result.irdn.is"
         },
+        "RootDomainName": {
+            "Description": "Root domain name",
+            "Type": "String",
+            "Default": "irdn.is"
+        },
         "CodeBucketName": {
             "Description": "S3 bucket that contains lambda code",
             "Type": "String",
@@ -17,19 +22,9 @@
         "Fetcher": {
             "Type": "AWS::Lambda::Function",
             "Properties": {
-                "FunctionName": {
-                    "Fn::Join": [
-                        "",
-                        [
-                            {
-                                "Ref": "AWS::StackName"
-                            },
-                            "-build"
-                        ]
-                    ]
-                },
+                "FunctionName": "MatchFetcher",
                 "Description": "Fetch matches and update S3",
-                "Handler": "index.handler",
+                "Handler": "main.handler",
                 "MemorySize": "1536",
                 "Timeout": "300",
                 "Role": {
@@ -44,53 +39,112 @@
                     },
                     "S3Key": "code.zip"
                 },
-                "Runtime": "python3.6"
+                "Runtime": "python3.6",
+                "Environment": {
+                 "Variables": {
+                    "RESULT_BUCKET": { "Ref": "S3BucketName" }
+                }
             }
-        },
-        "ResultBucket": {
-            "Type" : "AWS::S3::Bucket",
-            "BucketName": {"Ref": "S3BucketName"}
-        },
-        "ExecutionRole": {
-            "Type": "AWS::IAM::Role",
-            "Properties": {
-                "AssumeRolePolicyDocument": {
-                    "Statement": {
-                        "Effect": "Allow",
-                        "Principal": {
-                            "Service": "lambda.amazonaws.com"
-                        },
-                        "Action": "sts:AssumeRole"
-                    }
-                },
-                "Policies": [
+        }
+    },
+    "ResultBucket": {
+        "Type" : "AWS::S3::Bucket",
+        "Properties": {
+            "BucketName": {"Ref": "S3BucketName"},
+            "AccessControl": "PublicRead",
+            "WebsiteConfiguration": {
+                "IndexDocument": "index.html",
+                "ErrorDocument": "error.html"
+            }
+        }
+    },
+    "BucketPolicy": {
+        "Type": "AWS::S3::BucketPolicy",
+        "Properties": {
+            "PolicyDocument": {
+                "Id": "ResultBucketAllowPolicy",
+                "Version": "2012-10-17",
+                "Statement": [
                     {
-                        "PolicyName": "ReadWriteBucket",
-                        "PolicyDocument": {
-                            "Statement": {
-                                "Effect": "Allow",
-                                "Action": [
-                                    "s3:GetObject",
-                                    "s3:PutObject",
-                                    "s3:PutObjectAcl"
-                                ],
-                                "Resource": {
-                                    "Fn::Join": [
-                                        "",
-                                        [
-                                            "arn:aws:s3:::",
-                                            {
-                                                "Ref": "S3BucketName"
-                                            },
-                                            "/*"
-                                        ]
-                                    ]
-                                }
-                            }
+                        "Sid": "PublicReadForGetBucketObjects",
+                        "Effect": "Allow",
+                        "Principal": "*",
+                        "Action": "s3:GetObject",
+                        "Resource": {
+                            "Fn::Join": [
+                                "",
+                                [
+                                    "arn:aws:s3:::",
+                                    {
+                                        "Ref": "S3BucketName"
+                                    },
+                                    "/*"
+                                ]
+                            ]
                         }
                     }
                 ]
+            },
+            "Bucket": {
+                "Ref": "S3BucketName"
             }
         }
+    },
+    "DNS": {
+        "Type": "AWS::Route53::RecordSet",
+        "Properties": {
+            "HostedZoneName": {
+                "Fn::Join": ["", [{"Ref": "RootDomainName"}, "."]]
+            },
+            "Comment": "Alias for s3 website",
+            "Name": {"Ref": "S3BucketName"},
+            "Type": "A",
+            "AliasTarget": {
+                "DNSName": "s3-website-us-east-1.amazonaws.com",
+                "HostedZoneId": "Z3AQBSTGFYJSTF"
+            }
+        }
+    },
+    "ExecutionRole": {
+        "Type": "AWS::IAM::Role",
+        "Properties": {
+            "AssumeRolePolicyDocument": {
+                "Statement": {
+                    "Effect": "Allow",
+                    "Principal": {
+                        "Service": "lambda.amazonaws.com"
+                    },
+                    "Action": "sts:AssumeRole"
+                }
+            },
+            "Policies": [
+                {
+                    "PolicyName": "ReadWriteBucket",
+                    "PolicyDocument": {
+                        "Statement": {
+                            "Effect": "Allow",
+                            "Action": [
+                                "s3:GetObject",
+                                "s3:PutObject",
+                                "s3:PutObjectAcl"
+                            ],
+                            "Resource": {
+                                "Fn::Join": [
+                                    "",
+                                    [
+                                        "arn:aws:s3:::",
+                                        {
+                                            "Ref": "ResultBucket"
+                                        },
+                                        "/*"
+                                    ]
+                                ]
+                            }
+                        }
+                    }
+                }
+            ]
+        }
     }
+}
 }
