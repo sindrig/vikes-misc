@@ -19,13 +19,13 @@
         }
     },
     "Resources": {
-        "MatchFetcherLambdaFunction": {
+        "Fetcher": {
             "Type": "AWS::Lambda::Function",
             "Properties": {
                 "FunctionName": "MatchFetcher",
                 "Description": "Fetch matches and update S3",
                 "Handler": "main.handler",
-                "MemorySize": "1536",
+                "MemorySize": "150",
                 "Timeout": "300",
                 "Role": {
                     "Fn::GetAtt": [
@@ -124,13 +124,13 @@
             "Properties": {
                 "Description": "Schedules running of lambda vikes-result",
                 "Name": "VikesResultCron",
-                "ScheduleExpression": "rate(1 minute)",
+                "ScheduleExpression": "rate(30 minutes)",
                 "Targets": [
                     {
                         "Id": "CronScheduler",
                         "Arn": {
                             "Fn::GetAtt": [
-                                "MatchFetcherLambdaFunction",
+                                "Fetcher",
                                 "Arn"
                             ]
                         }
@@ -143,7 +143,7 @@
             "Properties": {
                 "FunctionName": {
                     "Fn::GetAtt": [
-                        "MatchFetcherLambdaFunction",
+                        "Fetcher",
                         "Arn"
                     ]
                 },
