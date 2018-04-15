@@ -1,3 +1,5 @@
+.DEFAULT_GOAL := build
+
 clean:
 	rm -rf code.zip suds*
 
