@@ -55,3 +55,6 @@ tmp/
 /venv/
 
 /ksi_stats/cache
+
+/match-results/suds*
+/match-results/code.zip

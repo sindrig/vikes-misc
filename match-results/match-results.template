@@ -1,0 +1,96 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "Lambda stuff to fetch and update results",
+    "Parameters": {
+        "S3BucketName": {
+            "Description": "S3 bucket with results",
+            "Type": "String",
+            "Default": "vikes-result.irdn.is"
+        },
+        "CodeBucketName": {
+            "Description": "S3 bucket that contains lambda code",
+            "Type": "String",
+            "Default": "vikes-result-code"
+        }
+    },
+    "Resources": {
+        "Fetcher": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+                "FunctionName": {
+                    "Fn::Join": [
+                        "",
+                        [
+                            {
+                                "Ref": "AWS::StackName"
+                            },
+                            "-build"
+                        ]
+                    ]
+                },
+                "Description": "Fetch matches and update S3",
+                "Handler": "index.handler",
+                "MemorySize": "1536",
+                "Timeout": "300",
+                "Role": {
+                    "Fn::GetAtt": [
+                        "ExecutionRole",
+                        "Arn"
+                    ]
+                },
+                "Code": {
+                    "S3Bucket": {
+                        "Ref": "CodeBucketName"
+                    },
+                    "S3Key": "code.zip"
+                },
+                "Runtime": "python3.6"
+            }
+        },
+        "ResultBucket": {
+            "Type" : "AWS::S3::Bucket",
+            "BucketName": {"Ref": "S3BucketName"}
+        },
+        "ExecutionRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Statement": {
+                        "Effect": "Allow",
+                        "Principal": {
+                            "Service": "lambda.amazonaws.com"
+                        },
+                        "Action": "sts:AssumeRole"
+                    }
+                },
+                "Policies": [
+                    {
+                        "PolicyName": "ReadWriteBucket",
+                        "PolicyDocument": {
+                            "Statement": {
+                                "Effect": "Allow",
+                                "Action": [
+                                    "s3:GetObject",
+                                    "s3:PutObject",
+                                    "s3:PutObjectAcl"
+                                ],
+                                "Resource": {
+                                    "Fn::Join": [
+                                        "",
+                                        [
+                                            "arn:aws:s3:::",
+                                            {
+                                                "Ref": "S3BucketName"
+                                            },
+                                            "/*"
+                                        ]
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}
