@@ -5,3 +5,5 @@ requirements.txt
 *__pycache__*
 build.py
 frontpage_include.html
+*.egg-info/*
+*.dist-info/*
