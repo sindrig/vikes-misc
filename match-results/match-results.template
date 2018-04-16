@@ -124,7 +124,7 @@
             "Properties": {
                 "Description": "Schedules running of lambda vikes-result",
                 "Name": "VikesResultCron",
-                "ScheduleExpression": "rate(30 minutes)",
+                "ScheduleExpression": "rate(4 hours)",
                 "Targets": [
                     {
                         "Id": "CronScheduler",
