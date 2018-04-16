@@ -31,6 +31,17 @@ def update_lambda():
     )
     print('Lambda function %s updated' % (LAMBDA_FUNCTION_NAME, ))
 
+def trigger_lambda():
+    client = session.client('lambda', region_name=REGION)
+    response = client.invoke(
+        FunctionName=LAMBDA_FUNCTION_NAME,
+    )
+    if response['StatusCode'] == 200:
+        print('Lambda function triggered')
+    else:
+        print('Error triggering lambda')
+        pprint.pprint(response)
+
 
 def update_cloudformation():
     '''Updates cloudformation stack with definition in S3'''
@@ -85,6 +96,7 @@ def update_cloudformation():
 ACTIONS = {
     'lambda': update_lambda,
     'cloudformation': update_cloudformation,
+    'trigger': trigger_lambda,
 }
 
 if __name__ == '__main__':

@@ -16,4 +16,4 @@ upload: build
 	echo https://s3.amazonaws.com/vikes-result-code/code.zip > /dev/null
 
 update: upload
-	python build.py cloudformation lambda
+	python build.py cloudformation lambda trigger
