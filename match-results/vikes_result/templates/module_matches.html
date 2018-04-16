@@ -1,0 +1,12 @@
+<div id="{{module.ID}}" class="module_container">
+    <div class="prev" style="display: none;">
+        {% with matches = past_matches %}
+            {% include 'match_list.html' %}
+        {% endwith %}
+    </div>
+    <div class="next" style="display: none;">
+        {% with matches = upcoming_matches %}
+            {% include 'match_list.html' %}
+        {% endwith %}
+    </div>
+</div>

@@ -1,5 +1,4 @@
 import sys
-import itertools
 from multiprocessing.pool import ThreadPool
 
 from .models import Game
@@ -29,14 +28,20 @@ def _get_games(module, f, t):
             ground=game.VollurNafn,
         )
         for game in result.ArrayFelogLeikir.FelogLeikir
-        if game.UrslitHeima and game.UrslitUti
     ]
+
 
 def get_games(f, t, *modules):
     pool = ThreadPool(processes=1)
-    async_results = [
-        pool.apply_async(_get_games, (module, f, t))
+    async_results = {
+        module: pool.apply_async(_get_games, (module, f, t))
         for module in modules
-    ]
-    games = [result.get(timeout=10) for result in async_results]
-    return sorted(itertools.chain(*games), key=lambda x: x.date, reverse=True)
+    }
+    return {
+        module: sorted(
+            result.get(timeout=10),
+            key=lambda x: x.date,
+            reverse=True
+        )
+        for module, result in async_results.items()
+    }

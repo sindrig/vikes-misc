@@ -20,5 +20,7 @@ def upload_matches(s3_bucket, matches):
         ContentType='text/html; charset=utf-8',
     )
     if DEBUG:
-        kwargs['Bucket'] = 'vikes-result.irdn.is'
+        with open('/home/sindri/vikes-result.html', 'w') as f:
+            f.write(kwargs['Body'])
+            return
     client.put_object(**kwargs)

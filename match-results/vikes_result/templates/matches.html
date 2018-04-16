@@ -1,33 +1,34 @@
 <html>
     <head>
+        <!-- Uppfært {{now|dateformat}} kl. {{now|timeformat}} -->
         <title>Úrslit leikja Víkings</title>
+        <style>{% include 'styles.css' %}</style>
     </head>
     <body>
-        <a href="https://github.com/sindrig/vikes-misc/tree/master/match-results"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
-        Uppfært {{now|dateformat}} kl. {{now|timeformat}}
-        <table>
-            <tr>
-                <th>Leikdagur</th>
-                <th>Tími</th>
-                <th>Flokkur</th>
-                <th>Mót</th>
-                <th>Völlur</th>
-                <th>Heimalið</th>
-                <th>Gestir</th>
-                <th>Úrslit</th>
-            </tr>
-            {% for match in matches %}
-                <tr>
-                    <td>{{match.date|dateformat}}</td>
-                    <td>{{match.date|timeformat}}</td>
-                    <td>{{match.group}}</td>
-                    <td>{{match.competition}}</td>
-                    <td>{{match.ground}}</td>
-                    <td>{{match.home_team}}</td>
-                    <td>{{match.away_team}}</td>
-                    <td>{{match.home_score}} - {{match.away_score}}</td>
-                </tr>
-            {% endfor %}
-        </table>
+        <div id="nav">
+            <div class="main">
+                {% for module in matches.keys() %}
+                    <a href="#" data-id="{{module.ID}}">{{module.NAME}}</a>
+                    {% if not loop.last %}
+                        /
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <hr />
+            <div class="sub">
+                <a href="#" data-id="prev" class="active">Nýjustu úrslit</a>
+                /
+                <a href="#" data-id="next">Næstu leikir</a>
+            </div>
+            <hr />
+        </div>
+        {% for module, (past_matches, upcoming_matches) in matches.items() %}
+            {% include 'module_matches.html' %}
+        {% endfor %}
+        <script
+  src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+  integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E="
+  crossorigin="anonymous"></script>
+        <script type="text/javascript">{% include 'javascript.js' %}</script>
     </body>
 </html>

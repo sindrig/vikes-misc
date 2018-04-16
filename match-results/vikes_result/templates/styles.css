@@ -1,0 +1,51 @@
+body {
+    background-color: rgba(21, 33, 47, 0.9);
+    color: #FFF;
+    max-width: 400px;
+}
+
+.module_container > div {
+    padding: 15px;
+}
+
+.module_container span, .module_container h3 {
+    display: inline-block;
+}
+
+.module_container .header {
+    width: 100%;
+    font-size: 0.8em;
+}
+
+.module_container .score {
+    float: right;
+}
+
+.module_container h3 {
+    margin: 5px 0px 10px 0;
+}
+
+#nav a {
+    display: inline-block;
+    padding: 0 10px;
+}
+
+a.active {
+    font-weight: bold;
+}
+
+a:link{
+  color:#FFF;
+}
+a:visited{
+  color:#FFF;
+}
+a:hover{
+  color:#FFF;
+}
+a:focus{
+  color:#FFF;
+}
+a:active{
+  color:#FFF;
+}

@@ -1,0 +1,13 @@
+{% for match in matches %}
+    <div class="match">
+        <span class="header">
+            {{match.date|dateformat}} {{match.date|timeformat}} / {{match.competition}} / {{match.ground}}
+        </span>
+        <h3>{{match.home_team}} - {{match.away_team}}</h3>
+        <h3 class="score">
+            {% if match.home_score and match.away_score %}
+                {{match.home_score}} - {{match.away_score}}
+            {% endif %}
+        </h3>
+    </div>
+{% endfor %}

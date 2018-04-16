@@ -4,3 +4,4 @@ Makefile
 requirements.txt
 *__pycache__*
 build.py
+frontpage_include.html
