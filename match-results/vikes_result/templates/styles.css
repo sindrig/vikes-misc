@@ -2,6 +2,7 @@ body {
     background-color: rgba(21, 33, 47, 0.9);
     color: #FFF;
     max-width: 400px;
+    font-family: 'Open Sans',Helvetica,Arial,Sans-Serif;
 }
 
 .module_container > div {
