@@ -1,6 +1,7 @@
 import argparse
 import datetime
 
+import boto3
 from openpyxl import load_workbook
 from icalendar import Calendar, Event
 
@@ -20,12 +21,27 @@ def main(inputfile, outputfile, name=None):
     cal.add('version', '2.0')
     if name is None:
         name = input('Name of calendar: ')
-    cal.name = name.strip()
+    cal.add('name', name.strip())
+    cal.add('x-wr-calname', name.strip())
+    cal.add('x-wr-timezone', 'Atlantic/Reykjavik')
+    cal.add('prodid', '-//Vikingur//Knattspyrnudeild//EN')
     for ws in wb.worksheets:
         for event in get_events(ws):
             cal.add_component(event.get_ical_event())
-    with open(outputfile, 'wb') as f:
-        f.write(cal.to_ical())
+    if outputfile.startswith('s3://'):
+        _, outputfile = outputfile.split('://')
+        bucket, key = outputfile.split('/', 1)
+        session = boto3.Session(profile_name='irdn')
+        client = session.client('s3')
+        client.put_object(
+            Body=cal.to_ical(),
+            Bucket=bucket,
+            Key=key,
+            ContentType='text/calendar'
+        )
+    else:
+        with open(outputfile, 'wb') as f:
+            f.write(cal.to_ical())
 
 
 class XlsxEvent:
