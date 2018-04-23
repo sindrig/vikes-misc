@@ -14,10 +14,13 @@ constants = {
 }
 
 
-def main(inputfile, outputfile):
+def main(inputfile, outputfile, name=None):
     wb = load_workbook(inputfile)
     cal = Calendar()
     cal.add('version', '2.0')
+    if name is None:
+        name = input('Name of calendar: ')
+    cal.name = name.strip()
     for ws in wb.worksheets:
         for event in get_events(ws):
             cal.add_component(event.get_ical_event())
@@ -77,6 +80,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('inputfile')
     parser.add_argument('outputfile')
+    parser.add_argument('--name')
     args = parser.parse_args()
     assert args.outputfile.endswith('ics')
-    main(args.inputfile, args.outputfile)
+    main(args.inputfile, args.outputfile, name=args.name)
