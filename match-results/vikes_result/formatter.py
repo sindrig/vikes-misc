@@ -45,9 +45,9 @@ def filter_matches(matches):
 
 
 def upcoming_matches(all_matches):
-    return filter_matches(
+    return reversed(filter_matches(
         [match for match in all_matches if match.date > now]
-    )[-5:]
+    )[-5:])
 
 
 def past_matches(all_matches):
