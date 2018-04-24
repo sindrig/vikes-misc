@@ -50,6 +50,10 @@ class XlsxEvent:
     summary = date_start = date_end = location = ''
     DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
 
+    ALARM = Alarm()
+    ALARM.add('action', 'display')
+    ALARM.add('trigger', datetime.timedelta(minutes=-30))
+
     def __init__(self, header, row):
         for i, cell in enumerate(row):
             field = constants.get(header[i])
@@ -76,10 +80,7 @@ class XlsxEvent:
         event.add('dtend', self.date_end)
         event['location'] = self.location
         event.add('status', 'TENTATIVE')
-        alarm = Alarm()
-        alarm.add('action', 'display')
-        alarm.add('trigger', datetime.timedelta(minutes=-30))
-        event.add_component(alarm)
+        event.add_component(self.ALARM)
         return event
 
     def validate(self):
