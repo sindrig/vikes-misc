@@ -75,6 +75,7 @@ class XlsxEvent:
         event.add('dtstart', self.date_start)
         event.add('dtend', self.date_end)
         event['location'] = self.location
+        event.add('status', 'TENTATIVE')
         return event
 
     def validate(self):
