@@ -3,7 +3,7 @@ import datetime
 
 import boto3
 from openpyxl import load_workbook
-from icalendar import Calendar, Event
+from icalendar import Calendar, Event, Alarm
 
 constants = {
     'LEIKDAGUR': 'date',
@@ -76,6 +76,10 @@ class XlsxEvent:
         event.add('dtend', self.date_end)
         event['location'] = self.location
         event.add('status', 'TENTATIVE')
+        alarm = Alarm()
+        alarm.add('action', 'display')
+        alarm.add('trigger', datetime.timedelta(minutes=-30))
+        event.add_component(alarm)
         return event
 
     def validate(self):
