@@ -21,6 +21,7 @@ parts/
 sdist/
 var/
 *.egg-info/
+*.dist-info/
 .installed.cfg
 *.egg
 
@@ -60,3 +61,9 @@ tmp/
 /match-results/?inja*
 /match-results/?arkup?afe*
 /match-results/code.zip
+/match-results/requests
+/match-results/urllib3*
+/match-results/idna*
+/match-results/chardet*
+/match-results/certifi*
+/match-results/bs4*

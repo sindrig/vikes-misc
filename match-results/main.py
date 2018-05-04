@@ -22,6 +22,13 @@ def create_result_box_page():
 def create_result_page():
     html = generate_page()
     uploader.upload_file(RESULT_BUCKET, 'matchpage.html', html)
+    with open('frontpage_include.js', 'r') as f:
+        uploader.upload_file(
+            RESULT_BUCKET,
+            'frontpage_include.js',
+            f.read(),
+            content_type='application/javascript',
+        )
 
 
 def handler(json_input, context):

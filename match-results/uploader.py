@@ -10,12 +10,12 @@ session = boto3.Session(**kwargs)
 client = session.client('s3')
 
 
-def upload_file(s3_bucket, key, html):
+def upload_file(s3_bucket, key, html, content_type='text/html; charset=utf-8'):
     kwargs = dict(
         Body=html,
         Bucket=s3_bucket,
         Key=key,
-        ContentType='text/html; charset=utf-8',
+        ContentType=content_type,
     )
     if DEBUG:
         with open('/home/sindri/vikes-result/%s.html' % (key, ), 'w') as f:
