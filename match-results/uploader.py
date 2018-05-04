@@ -1,8 +1,6 @@
 import os
 import boto3
 
-from .formatter import get_html
-
 DEBUG = os.getenv('DEBUG')
 
 kwargs = {}
@@ -12,15 +10,15 @@ session = boto3.Session(**kwargs)
 client = session.client('s3')
 
 
-def upload_matches(s3_bucket, matches):
+def upload_file(s3_bucket, key, html):
     kwargs = dict(
-        Body=get_html(matches),
+        Body=html,
         Bucket=s3_bucket,
-        Key='index.html',
+        Key=key,
         ContentType='text/html; charset=utf-8',
     )
     if DEBUG:
-        with open('/home/sindri/vikes-result.html', 'w') as f:
+        with open('/home/sindri/vikes-result/%s.html' % (key, ), 'w') as f:
             f.write(kwargs['Body'])
             return
     client.put_object(**kwargs)

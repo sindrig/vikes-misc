@@ -31,6 +31,7 @@ def update_lambda():
     )
     print('Lambda function %s updated' % (LAMBDA_FUNCTION_NAME, ))
 
+
 def trigger_lambda():
     client = session.client('lambda', region_name=REGION)
     response = client.invoke(
@@ -54,7 +55,7 @@ def update_cloudformation():
     )
     try:
         client.describe_stacks(StackName=CLOUDFORMATION_STACK_NAME)
-        response = client.update_stack(**stack_kwargs)
+        client.update_stack(**stack_kwargs)
     except botocore.exceptions.ClientError as e:
         if e.args[0].endswith('does not exist'):
             # todo create stack
@@ -90,7 +91,6 @@ def update_cloudformation():
                     )
             break
         time.sleep(1)
-
 
 
 ACTIONS = {
