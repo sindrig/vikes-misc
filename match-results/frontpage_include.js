@@ -17,8 +17,9 @@ if(window.location.pathname === "/") {
 }else if(window.location.pathname === "/leikir-vikings") {
     var ifrm = document.createElement("iframe");
     ifrm.style.width = "100%";
-    ifrm.style.minHeight = "1500px";
+    ifrm.style.minHeight = "1600px";
     ifrm.setAttribute("src", "http://vikes-result.irdn.is/matchpage.html");
     var elements = document.getElementsByClassName('item-page');
     elements[0].appendChild(ifrm);
+    document.getElementById('s5_component_wrap_inner').style.padding = '0';
 }

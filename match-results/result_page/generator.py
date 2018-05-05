@@ -101,9 +101,8 @@ def get_selector(parent, kk, kvk):
 
 WRAPPER_STYLE = (
     'float: left; '
-    # 'width: {width}%; '
-    'padding: 1%; '
-    'min-width: 800px'
+    # 'max-width: {width}; '
+    'margin: 20px; '
 )
 
 
@@ -114,8 +113,8 @@ def get_wrapper(parent, wrapper_id, targets):
     left_wrapper = parent.new_tag('div')
     right_wrapper = parent.new_tag('div')
 
-    left_wrapper['style'] = WRAPPER_STYLE.format(width='60%')
-    right_wrapper['style'] = WRAPPER_STYLE.format(width='40%')
+    left_wrapper['style'] = WRAPPER_STYLE.format(width='800px')
+    right_wrapper['style'] = WRAPPER_STYLE.format(width='600px')
 
     left_wrapper.append(targets[0].get_target())
     right_wrapper.append(targets[1].get_target())
