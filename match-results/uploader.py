@@ -18,7 +18,7 @@ def upload_file(s3_bucket, key, html, content_type='text/html; charset=utf-8'):
         ContentType=content_type,
     )
     if DEBUG:
-        with open('/home/sindri/vikes-result/%s.html' % (key, ), 'w') as f:
+        with open('/home/sindri/vikes-result/%s' % (key, ), 'w') as f:
             f.write(kwargs['Body'])
             return
     client.put_object(**kwargs)

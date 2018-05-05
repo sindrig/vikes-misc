@@ -53,6 +53,17 @@ SCRIPT = '''
 ''' % JS_VARS
 
 
+class Target:
+    def __init__(self, target, remove=[]):
+        self.target = target
+        self.remove = remove
+
+    def get_target(self):
+        for r in self.remove:
+            self.target.find(*r).decompose()
+        return self.target
+
+
 def get_soup(url):
     soup = bs4.BeautifulSoup(
         requests.get(url).text,
@@ -88,19 +99,27 @@ def get_selector(parent, kk, kvk):
     return div
 
 
-def get_wrapper(parent, wrapper_id, elements):
-    assert len(elements) == 3
+WRAPPER_STYLE = (
+    'float: left; '
+    # 'width: {width}%; '
+    'padding: 1%; '
+    'min-width: 800px'
+)
+
+
+def get_wrapper(parent, wrapper_id, targets):
+    assert len(targets) == 3
     soup = parent.new_tag('div', id=wrapper_id)
     soup['class'] = JS_VARS['DIV_CLASS']
     left_wrapper = parent.new_tag('div')
     right_wrapper = parent.new_tag('div')
 
-    left_wrapper['style'] = 'float: left; width: 60%; padding: 1%;'
-    right_wrapper['style'] = 'float: left; width: 40%; padding: 1%;'
+    left_wrapper['style'] = WRAPPER_STYLE.format(width='60%')
+    right_wrapper['style'] = WRAPPER_STYLE.format(width='40%')
 
-    left_wrapper.append(elements[0])
-    right_wrapper.append(elements[1])
-    right_wrapper.append(elements[2])
+    left_wrapper.append(targets[0].get_target())
+    right_wrapper.append(targets[1].get_target())
+    right_wrapper.append(targets[2].get_target())
     soup.append(left_wrapper)
     soup.append(right_wrapper)
     return soup
@@ -121,9 +140,18 @@ def get_data(sex):
         'overview': overview,
         'competition': competition,
         'targets': [
-            overview.find('div', {'class': 'table-responsive'}),
-            competition.find('div', {'class': 'results-area style2'}),
-            strip_fixtures(competition.find('div', {'id': 'fixtures'})),
+            Target(
+                overview.find('div', {'class': 'table-responsive'})
+            ),
+            Target(
+                competition.find('div', {'class': 'results-area style2'}),
+                remove=[
+                    ('ul', {'class': 'nav-pills'})
+                ]
+            ),
+            Target(
+                strip_fixtures(competition.find('div', {'id': 'fixtures'}))
+            ),
         ]
     }
 
