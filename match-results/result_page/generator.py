@@ -126,9 +126,16 @@ def get_wrapper(parent, wrapper_id, targets):
 
 def strip_fixtures(fixture_soup):
     table = fixture_soup.find('table')
-    for i, row in enumerate(table.findAll('tr')):
-        if i > 7:
-            row.decompose()
+    # Remove matches with no score
+    for i, row in reversed(list(enumerate(table.findAll('tr')))):
+        result_divs = row.findAll('div', {'class': 'num'})
+        if all(r.text for r in result_divs):
+            break
+        row.decompose()
+    # Remove all matches prior to last 7
+    # import pdb; pdb.set_trace()
+    for row in table.findAll('tr')[:-7]:
+        row.decompose()
     return fixture_soup
 
 
@@ -140,16 +147,20 @@ def get_data(sex):
         'competition': competition,
         'targets': [
             Target(
-                overview.find('div', {'class': 'table-responsive'})
+                overview.find('div', {'class': 'table-responsive'}),
             ),
             Target(
                 competition.find('div', {'class': 'results-area style2'}),
                 remove=[
-                    ('ul', {'class': 'nav-pills'})
+                    ('ul', {'class': 'nav-pills'}),
+                    ('ul', {'class': 'nav-tabs'}),
                 ]
             ),
             Target(
-                strip_fixtures(competition.find('div', {'id': 'fixtures'}))
+                strip_fixtures(competition.find('div', {'id': 'fixtures'})),
+                remove=[
+                    ('ul', {'class': 'nav-tabs'}),
+                ]
             ),
         ]
     }

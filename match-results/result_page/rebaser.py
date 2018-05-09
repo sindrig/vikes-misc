@@ -36,4 +36,6 @@ def rebase(base, soup):
                 pass
             else:
                 link[attr] = rebase_one(base, url)
+                if tag == 'a':
+                    link['target'] = '_blank'
     return soup
