@@ -4,9 +4,9 @@ from multiprocessing.pool import ThreadPool
 from .models import Game
 
 
-def _get_games(module, f, t):
+def _get_games(module, f, t, FelagNumer=None):
     result = module.client.service.FelogLeikir(
-        FelagNumer=module.VIKES,
+        FelagNumer=FelagNumer or module.VIKES,
         DagsFra=f,
         DagsTil=t,
         FlokkurNumer='',
@@ -26,6 +26,7 @@ def _get_games(module, f, t):
             date=game.LeikDagur,
             competition=game.MotNafn,
             ground=game.VollurNafn,
+            sex=game.MotKyn,
         )
         for game in result.ArrayFelogLeikir.FelogLeikir
     ]

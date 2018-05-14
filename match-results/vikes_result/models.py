@@ -11,5 +11,6 @@ Game = namedtuple(
         'date',
         'competition',
         'ground',
+        'sex',
     )
 )
