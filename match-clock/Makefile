@@ -18,6 +18,9 @@ unpack-deps:
 all: unpack-deps build deploy
 
 windows:
-	nativefier http://vikes-match.irdn.is --full-screen --platform windows
+	./package.sh http://vikes-match.irdn.is --platform windows
 	zip -qyr klukka.zip Vallarklukka-win32-x64/
 	aws s3 cp klukka.zip s3://vikes-match.irdn.is/klukka.zip --profile=irdn
+
+platform:
+	./package.sh http://vikes-match.irdn.is

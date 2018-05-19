@@ -36,6 +36,7 @@ class App extends Component {
         this.updateMatch = this.updateMatch.bind(this);
         this.handleShortcuts = this.handleShortcuts.bind(this);
         this.selectView = this.selectView.bind(this);
+        this.onFileUpload = this.onFileUpload.bind(this);
     }
 
     getChildContext() {
@@ -46,6 +47,11 @@ class App extends Component {
         getState()
             .then(state => this.setState(state))
             .catch(err => console.log(err));
+    }
+
+    onFileUpload(event, a) {
+        console.log('event', event.target.files);
+        console.log('a', a);
     }
 
     handleShortcuts() {
@@ -94,6 +100,7 @@ class App extends Component {
                     updateMatch={this.updateMatch}
                     selectView={this.selectView}
                     views={[IDLE, MATCH]}
+                    onFileUpload={this.onFileUpload}
                 />
             </Shortcuts>
         );

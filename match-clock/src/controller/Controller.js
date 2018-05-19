@@ -5,7 +5,7 @@ import MatchActions from './MatchActions';
 import './Controller.css';
 
 const Controller = ({
-    updateMatch, state, selectView, views,
+    updateMatch, state, selectView, views, onFileUpload,
 }) => {
     const matchAction = (attr, fn) => () => updateMatch({
         ...state.match,
@@ -32,6 +32,7 @@ const Controller = ({
                         </label>
                     ))}
                 </div>
+                <input type="file" onChange={onFileUpload} />
                 <button onClick={() => window.location.reload()}>Refresh!</button>
             </div>
         </div>
@@ -40,6 +41,7 @@ const Controller = ({
 
 Controller.propTypes = {
     updateMatch: PropTypes.func.isRequired,
+    onFileUpload: PropTypes.func.isRequired,
     selectView: PropTypes.func.isRequired,
     views: PropTypes.arrayOf(PropTypes.string).isRequired,
     state: PropTypes.shape({
