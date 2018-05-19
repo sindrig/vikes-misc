@@ -67,3 +67,7 @@ tmp/
 /match-results/chardet*
 /match-results/certifi*
 /match-results/bs4*
+
+/match-clock/Vallarklukka-win32-x64/
+
+/match-clock/klukka.zip
