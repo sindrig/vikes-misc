@@ -3,11 +3,12 @@ import PropTypes from 'prop-types';
 import { Shortcuts } from 'react-shortcuts';
 
 import { getState, updateMatch, updateView } from './api';
-import ShortcutManager from './ShortcutManager';
-import Controller from './Controller';
+import ShortcutManager from './utils/ShortcutManager';
 
-import ScoreBoard from './ScoreBoard';
-import Idle from './Idle';
+import Controller from './controller/Controller';
+
+import ScoreBoard from './screens/ScoreBoard';
+import Idle from './screens/Idle';
 import backgroundImage from './images/background.png';
 
 import './App.css';
