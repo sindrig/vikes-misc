@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import MatchActions from './MatchActions';
+import './Controller.css';
 
 const Controller = ({
     updateMatch, state, selectView, views,
@@ -13,20 +14,24 @@ const Controller = ({
     return (
         <div className="controller">
             {state.view === 'MATCH' ? <MatchActions matchAction={matchAction} state={state} /> : null}
-            <div>
-                <select onChange={selectView}>
+            <div className="page-actions">
+                <div className="view-selector">
                     {views.map(view => (
-                        <option
-                            value={view}
-                            key={view}
-                            selected={view === state.view}
-                        >
+                        <label htmlFor={`view-selector-${view}`}>
+                            <input
+                                type="radio"
+                                value={view}
+                                key={view}
+                                checked={view === state.view ? 'checked' : null}
+                                onChange={selectView}
+                                className="view-selector-input"
+                                id={`view-selector-${view}`}
+                                name="view-selector"
+                            />
                             {view}
-                        </option>
+                        </label>
                     ))}
-                </select>
-            </div>
-            <div>
+                </div>
                 <button onClick={() => window.location.reload()}>Refresh!</button>
             </div>
         </div>

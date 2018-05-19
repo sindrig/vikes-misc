@@ -8,6 +8,8 @@ import AdImage from '../utils/AdImage';
 import vikesImage from '../images/vikes.png';
 import grindavikImage from '../images/grindavik.png';
 
+import './ScoreBoard.css';
+
 const home = {
     image: vikesImage,
     name: 'Víkingur',
