@@ -1,4 +1,0 @@
-{
-  "cmd": "nave use 8 bash -c 'make all'",
-  "build": true
-}
