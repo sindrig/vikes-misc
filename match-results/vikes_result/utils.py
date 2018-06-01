@@ -16,6 +16,8 @@ def _get_games(module, f, t, FelagNumer=None):
     if hasattr(result, 'Villa'):
         print(result.Villa)
         sys.exit(1)
+    if not result.ArrayFelogLeikir:
+        return []
     return [
         Game(
             group=game.Flokkur,
