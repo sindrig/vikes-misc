@@ -37,6 +37,8 @@ def upload_file(s3_bucket, key, html, content_type='text/html; charset=utf-8'):
         if e.response['Error']['Code'] == '304':
             print('No change in file %s/%s' % (s3_bucket, key, ))
             return
+        elif e.response['Error']['Code'] == '404':
+            print('File %s/%s does not exist, creating' % (s3_bucket, key, ))
         else:
             raise e
     if DEBUG:

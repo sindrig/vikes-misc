@@ -1,6 +1,6 @@
 if(window.location.pathname === "/") {
     var ifrm = document.createElement("iframe");
-    ifrm.setAttribute("src", "http://vikes-result.irdn.is/");
+    ifrm.setAttribute("src", "//vikes-result.irdn.is/");
     ifrm.style.height = "480px";
     var container = document.getElementById("s5_pos_custom_1");
     if (window.getScrollWidth && window.getScrollWidth() < 500){
@@ -18,7 +18,7 @@ if(window.location.pathname === "/") {
     var ifrm = document.createElement("iframe");
     ifrm.style.width = "100%";
     ifrm.style.minHeight = "1600px";
-    ifrm.setAttribute("src", "http://vikes-result.irdn.is/matchpage.html");
+    ifrm.setAttribute("src", "//vikes-result.irdn.is/matchpage.html");
     var elements = document.getElementsByClassName('item-page');
     elements[0].appendChild(ifrm);
     document.getElementById('s5_component_wrap_inner').style.padding = '0';

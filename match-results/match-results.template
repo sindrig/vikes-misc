@@ -2,7 +2,7 @@
     "AWSTemplateFormatVersion": "2010-09-09",
     "Description": "Lambda stuff to fetch and update results",
     "Parameters": {
-        "S3BucketName": {
+        "Domain": {
             "Description": "S3 bucket with results",
             "Type": "String",
             "Default": "vikes-result.irdn.is"
@@ -16,6 +16,21 @@
             "Description": "S3 bucket that contains lambda code",
             "Type": "String",
             "Default": "vikes-result-code"
+        },
+        "CertificateId": {
+            "Description": "SSLCertificate to use. If not specified, defaults to default cloudformation certificate.",
+            "Type": "String",
+            "Default": ""
+        }
+    },
+    "Conditions": {
+        "SSLCertificateEmpty": {
+            "Fn::Equals": [
+                {
+                    "Ref": "CertificateId"
+                },
+                ""
+            ]
         }
     },
     "Resources": {
@@ -43,7 +58,7 @@
                 "Environment": {
                     "Variables": {
                         "RESULT_BUCKET": {
-                            "Ref": "S3BucketName"
+                            "Ref": "ResultBucket"
                         }
                     }
                 }
@@ -52,9 +67,6 @@
         "ResultBucket": {
             "Type": "AWS::S3::Bucket",
             "Properties": {
-                "BucketName": {
-                    "Ref": "S3BucketName"
-                },
                 "AccessControl": "PublicRead",
                 "WebsiteConfiguration": {
                     "IndexDocument": "index.html",
@@ -80,7 +92,7 @@
                                     [
                                         "arn:aws:s3:::",
                                         {
-                                            "Ref": "S3BucketName"
+                                            "Ref": "ResultBucket"
                                         },
                                         "/*"
                                     ]
@@ -90,7 +102,7 @@
                     ]
                 },
                 "Bucket": {
-                    "Ref": "S3BucketName"
+                    "Ref": "ResultBucket"
                 }
             }
         },
@@ -108,14 +120,19 @@
                         ]
                     ]
                 },
-                "Comment": "Alias for s3 website",
+                "Comment": "Alias for cf",
                 "Name": {
-                    "Ref": "S3BucketName"
+                    "Ref": "Domain"
                 },
                 "Type": "A",
                 "AliasTarget": {
-                    "DNSName": "s3-website-us-east-1.amazonaws.com",
-                    "HostedZoneId": "Z3AQBSTGFYJSTF"
+                    "DNSName": {
+                        "Fn::GetAtt": [
+                            "CloudFront",
+                            "DomainName"
+                        ]
+                    },
+                    "HostedZoneId": "Z2FDTNDATAQYW2"
                 }
             }
         },
@@ -152,6 +169,44 @@
                 "SourceArn": {
                     "Fn::GetAtt": [
                         "CronRule",
+                        "Arn"
+                    ]
+                }
+            }
+        },
+        "SSLCronRule": {
+            "Type": "AWS::Events::Rule",
+            "Properties": {
+                "Description": "Schedules running of ssl update",
+                "Name": "VikesResultCronSSL",
+                "ScheduleExpression": "rate(5 days)",
+                "Targets": [
+                    {
+                        "Id": "CronScheduler",
+                        "Arn": {
+                            "Fn::GetAtt": [
+                                "SSLUpdater",
+                                "Arn"
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        "InvokeLambdaPermission": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+                "FunctionName": {
+                    "Fn::GetAtt": [
+                        "SSLUpdater",
+                        "Arn"
+                    ]
+                },
+                "Action": "lambda:InvokeFunction",
+                "Principal": "events.amazonaws.com",
+                "SourceArn": {
+                    "Fn::GetAtt": [
+                        "SSLCronRule",
                         "Arn"
                     ]
                 }
@@ -197,6 +252,327 @@
                     }
                 ]
             }
-        }
+        },
+        "CloudFront": {
+            "Type": "AWS::CloudFront::Distribution",
+            "Properties": {
+                "DistributionConfig": {
+                    "Aliases": [
+                        {
+                            "Ref": "Domain"
+                        }
+                    ],
+                    "ViewerCertificate": {
+                        "CloudFrontDefaultCertificate": {
+                            "Fn::If": [
+                                "SSLCertificateEmpty",
+                                true,
+                                {
+                                    "Ref": "AWS::NoValue"
+                                }
+                            ]
+                        },
+                        "IamCertificateId": {
+                            "Fn::If": [
+                                "SSLCertificateEmpty",
+                                {
+                                    "Ref": "AWS::NoValue"
+                                },
+                                {
+                                    "Ref": "CertificateId"
+                                }
+                            ]
+                        },
+                        "SslSupportMethod": {
+                            "Fn::If": [
+                                "SSLCertificateEmpty",
+                                {
+                                    "Ref": "AWS::NoValue"
+                                },
+                                "sni-only"
+                            ]
+                        }
+                    },
+                    "DefaultCacheBehavior": {
+                        "AllowedMethods": [
+                            "DELETE",
+                            "GET",
+                            "HEAD",
+                            "OPTIONS",
+                            "PATCH",
+                            "POST",
+                            "PUT"
+                        ],
+                        "DefaultTTL": 60,
+                        "ForwardedValues": {
+                            "QueryString": true
+                        },
+                        "MaxTTL": 60,
+                        "MinTTL": 0,
+                        "TargetOriginId": {
+                            "Fn::Join": [
+                                "-",
+                                [
+                                    {
+                                        "Ref": "Domain"
+                                    },
+                                    "cf",
+                                    "-origin"
+                                ]
+                            ]
+                        },
+                        "ViewerProtocolPolicy": "allow-all"
+                    },
+                    "Enabled": true,
+                    "Origins": [
+                        {
+                            "DomainName": {
+                                "Fn::Join": [
+                                    ".",
+                                    [
+                                        {
+                                            "Ref": "ResultBucket"
+                                        },
+                                        "s3-website-us-east-1.amazonaws.com"
+                                    ]
+                                ]
+                            },
+                            "Id": {
+                                "Fn::Join": [
+                                    "-",
+                                    [
+                                        {
+                                            "Ref": "Domain"
+                                        },
+                                        "cf",
+                                        "-origin"
+                                    ]
+                                ]
+                            },
+                            "CustomOriginConfig": {
+                                "OriginProtocolPolicy": "http-only"
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        "SSLExecutionRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Statement": {
+                        "Effect": "Allow",
+                        "Principal": {
+                            "Service": "lambda.amazonaws.com"
+                        },
+                        "Action": "sts:AssumeRole"
+                    }
+                },
+                "Policies": [
+                    {
+                        "PolicyName": "ManageCertificates",
+                        "PolicyDocument": {
+                            "Statement": {
+                                "Effect": "Allow",
+                                "Action": [
+                                    "iam:UploadServerCertificate",
+                                    "iam:UpdateServerCertificate",
+                                    "iam:DeleteServerCertificate",
+                                    "iam:ListServerCertificates"
+                                ],
+                                "Resource": [
+                                    "*"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "PolicyName": "PutObjectBucket",
+                        "PolicyDocument": {
+                            "Statement": {
+                                "Effect": "Allow",
+                                "Action": [
+                                    "s3:PutObject",
+                                    "s3:PutObjectACL"
+                                ],
+                                "Resource": [
+                                    {
+                                        "Fn::Join": [
+                                            "/",
+                                            [
+                                                {
+                                                    "Fn::GetAtt": [
+                                                        "ResultBucket",
+                                                        "Arn"
+                                                    ]
+                                                },
+                                                "*"
+                                            ]
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "PolicyName": "DeleteObjectBucket",
+                        "PolicyDocument": {
+                            "Statement": {
+                                "Effect": "Allow",
+                                "Action": [
+                                    "s3:DeleteObject"
+                                ],
+                                "Resource": [
+                                    {
+                                        "Fn::Join": [
+                                            "/",
+                                            [
+                                                {
+                                                    "Fn::GetAtt": [
+                                                        "ResultBucket",
+                                                        "Arn"
+                                                    ]
+                                                },
+                                                ".well-known",
+                                                "*"
+                                            ]
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "PolicyName": "DistributionStuff",
+                        "PolicyDocument": {
+                            "Statement": {
+                                "Effect": "Allow",
+                                "Action": [
+                                    "cloudfront:GetDistributionConfig",
+                                    "cloudfront:UpdateDistribution"
+                                ],
+                                "Resource": [
+                                    "*"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "PolicyName": "StackStuff",
+                        "PolicyDocument": {
+                            "Statement": {
+                                "Effect": "Allow",
+                                "Action": [
+                                    "cloudformation:DescribeStacks"
+                                ],
+                                "Resource": [
+                                    "*"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "PolicyName": "LogStuff",
+                        "PolicyDocument": {
+                            "Statement": {
+                                "Effect": "Allow",
+                                "Action": [
+                                    "logs:CreateLogGroup",
+                                    "logs:CreateLogStream",
+                                    "logs:PutLogEvents",
+                                    "logs:DescribeLogStreams"
+                                ],
+                                "Resource": [
+                                    "arn:aws:logs:*:*:*"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "PolicyName": "SNSStuff",
+                        "PolicyDocument": {
+                            "Statement": {
+                                "Effect": "Allow",
+                                "Action": [
+                                    "SNS:Publish"
+                                ],
+                                "Resource": [
+                                    "*"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "SSLUpdater": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+                "Description": {
+                    "Fn::Join": [
+                        " ",
+                        [
+                            "Update ssl certificate for",
+                            {
+                                "Ref": "Domain"
+                            }
+                        ]
+                    ]
+                },
+                "Handler": "https.handler",
+                "MemorySize": "512",
+                "Timeout": "300",
+                "Role": {
+                    "Fn::GetAtt": [
+                        "SSLExecutionRole",
+                        "Arn"
+                    ]
+                },
+                "Code": {
+                    "ZipFile": "print('Not configured')"
+                },
+                "Runtime": "python3.6",
+                "Environment": {
+                    "Variables": {
+                        "STACK_NAME": {
+                            "Ref": "AWS::StackName"
+                        },
+                        "DOMAIN": {
+                            "Ref": "Domain"
+                        },
+                        "REGION": {
+                            "Ref": "AWS::Region"
+                        },
+                    }
+                }
+            }
+        },
+    },
+    "Outputs": {
+        "SSLUpdaterLambda": {
+            "Description": "Name of the lambda function to update ssl",
+            "Value": {
+                "Ref": "SSLUpdater"
+            }
+        },
+        "Domain": {
+            "Description": "Domain of the webpage",
+            "Value": {
+                "Ref": "Domain"
+            }
+        },
+        "WebPageBucket": {
+            "Description": "Bucket to store webpage",
+            "Value": {
+                "Ref": "ResultBucket"
+            }
+        },
+        "CloudFrontDistribution": {
+            "Description": "Id of the CloudFront distribution",
+            "Value": {
+                "Ref": "CloudFront"
+            }
+        },
     }
 }
