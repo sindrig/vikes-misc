@@ -16,32 +16,38 @@ CLOUDFORMATION_STACK_NAME = 'vikes-result'
 LAMBDA_CODE_S3 = (
     'vikes-result-code', 'code.zip'
 )
-LAMBDA_FUNCTION_NAME = 'MatchFetcher'
+MATCH_FETCHER_LAMBDA_FN_NAME = 'MatchFetcherLambda'
 SSL_UPDATER_FN_NAME = 'SSLUpdaterLambda'
 IRDN_DIR = '/home/sindri/dev/irdn'
 
 session = boto3.Session(profile_name='irdn')
 
 
-def update_lambda():
+def get_fn_name(key):
     cf_client = session.client('cloudformation', region_name=REGION)
     stack = cf_client.describe_stacks(StackName=CLOUDFORMATION_STACK_NAME)
     outputs = stack['Stacks'][0]['Outputs']
     fn_output = [
-        o for o in outputs if o['OutputKey'] == SSL_UPDATER_FN_NAME
+        o for o in outputs if o['OutputKey'] == key
     ][0]
-    ssl_fn_name = fn_output['OutputValue']
+    return fn_output['OutputValue']
+
+
+def update_lambda():
     '''Updates lambda code with code from S3'''
     client = session.client('lambda', region_name=REGION)
     s3_bucket, s3_key = LAMBDA_CODE_S3
+    match_fetcher_fn_name = get_fn_name(MATCH_FETCHER_LAMBDA_FN_NAME)
     client.update_function_code(
-        FunctionName=LAMBDA_FUNCTION_NAME,
+        FunctionName=match_fetcher_fn_name,
         S3Bucket=s3_bucket,
         S3Key=s3_key,
     )
-    print('Lambda function %s updated' % (LAMBDA_FUNCTION_NAME, ))
+    print('Lambda function %s updated' % (match_fetcher_fn_name, ))
+
     # this is clean. it is.
     code_zip = os.path.join(IRDN_DIR, 'infra', 'letsencrypt', 'code.zip')
+    ssl_fn_name = get_fn_name(SSL_UPDATER_FN_NAME)
     with open(code_zip, 'rb') as f:
         client.update_function_code(
             FunctionName=ssl_fn_name,
@@ -52,8 +58,9 @@ def update_lambda():
 
 def trigger_lambda():
     client = session.client('lambda', region_name=REGION)
+    match_fetcher_fn_name = get_fn_name(MATCH_FETCHER_LAMBDA_FN_NAME)
     response = client.invoke(
-        FunctionName=LAMBDA_FUNCTION_NAME,
+        FunctionName=match_fetcher_fn_name,
     )
     if response['StatusCode'] == 200:
         print('Lambda function triggered')

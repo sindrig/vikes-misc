@@ -34,10 +34,9 @@
         }
     },
     "Resources": {
-        "Fetcher": {
+        "MatchFetcher": {
             "Type": "AWS::Lambda::Function",
             "Properties": {
-                "FunctionName": "MatchFetcher",
                 "Description": "Fetch matches and update S3",
                 "Handler": "main.handler",
                 "MemorySize": "512",
@@ -147,7 +146,7 @@
                         "Id": "CronScheduler",
                         "Arn": {
                             "Fn::GetAtt": [
-                                "Fetcher",
+                                "MatchFetcher",
                                 "Arn"
                             ]
                         }
@@ -160,7 +159,7 @@
             "Properties": {
                 "FunctionName": {
                     "Fn::GetAtt": [
-                        "Fetcher",
+                        "MatchFetcher",
                         "Arn"
                     ]
                 },
@@ -247,6 +246,23 @@
                                         ]
                                     ]
                                 }
+                            }
+                        }
+                    },
+                    {
+                        "PolicyName": "LogStuff",
+                        "PolicyDocument": {
+                            "Statement": {
+                                "Effect": "Allow",
+                                "Action": [
+                                    "logs:CreateLogGroup",
+                                    "logs:CreateLogStream",
+                                    "logs:PutLogEvents",
+                                    "logs:DescribeLogStreams"
+                                ],
+                                "Resource": [
+                                    "arn:aws:logs:*:*:*"
+                                ]
                             }
                         }
                     }
@@ -554,6 +570,12 @@
             "Description": "Name of the lambda function to update ssl",
             "Value": {
                 "Ref": "SSLUpdater"
+            }
+        },
+        "MatchFetcherLambda": {
+            "Description": "Name of the lambda function to update matches",
+            "Value": {
+                "Ref": "MatchFetcher"
             }
         },
         "Domain": {
