@@ -7,21 +7,22 @@ PAGES = {
     'kk': {
         'overview': (
             'https://www.ksi.is/mot/felog/leikir-felaga/?Search=True&'
-            'felag=103&vollur=&flokkur=111&kyn=1&dagsfra=27.04.2018&'
-            'dagstil=07.10.2018'
+            'felag=103&vollur=&flokkur=111&kyn=1&dagsfra=25.04.2019&'
+            'dagstil=10.10.2019'
         ),
         'competition': (
-            'https://www.ksi.is/mot/stakt-mot/?motnumer=37403'
+            'https://www.ksi.is/mot/stakt-mot/?motnumer=38296'
         )
     },
     'kvk': {
         'overview': (
             'https://www.ksi.is/mot/felog/leikir-felaga/?Search=True&'
-            'felag=8099&vollur=&flokkur=111&kyn=0&dagsfra=27.04.2018&'
-            'dagstil=07.10.2018'
+            'felag=8099&vollur=&flokkur=111&kyn=0&dagsfra=25.04.2019&'
+            'dagstil=10.10.2019'
         ),
         'competition': (
-            'https://www.ksi.is/mot/stakt-mot/?motnumer=37365'
+            'https://www.ksi.is/mot/stakt-mot/?motnumer=39256'
+
         )
     }
 }
@@ -117,7 +118,9 @@ def get_wrapper(parent, wrapper_id, targets):
     right_wrapper['style'] = WRAPPER_STYLE.format(width='600px')
 
     left_wrapper.append(targets[0].get_target())
-    right_wrapper.append(targets[1].get_target())
+    if targets[1].target:
+        # Table not ready...
+        right_wrapper.append(targets[1].get_target())
     right_wrapper.append(targets[2].get_target())
     soup.append(left_wrapper)
     soup.append(right_wrapper)
