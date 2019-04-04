@@ -192,7 +192,7 @@
                 ]
             }
         },
-        "InvokeLambdaPermission": {
+        "SSLInvokeLambdaPermission": {
             "Type": "AWS::Lambda::Permission",
             "Properties": {
                 "FunctionName": {
