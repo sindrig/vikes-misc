@@ -53,7 +53,7 @@
                     },
                     "S3Key": "code.zip"
                 },
-                "Runtime": "python3.6",
+                "Runtime": "python3.7",
                 "Environment": {
                     "Variables": {
                         "RESULT_BUCKET": {
@@ -548,7 +548,7 @@
                 "Code": {
                     "ZipFile": "print('Not configured')"
                 },
-                "Runtime": "python3.6",
+                "Runtime": "python3.7",
                 "Environment": {
                     "Variables": {
                         "STACK_NAME": {
