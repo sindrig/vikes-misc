@@ -2,7 +2,6 @@ import argparse
 import datetime
 
 import boto3
-from openpyxl import load_workbook
 from icalendar import Calendar, Event, Alarm
 
 try:
