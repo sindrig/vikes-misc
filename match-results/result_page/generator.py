@@ -61,7 +61,9 @@ class Target:
 
     def get_target(self):
         for r in self.remove:
-            self.target.find(*r).decompose()
+            t = self.target.find(*r)
+            if t is not None:
+                t.decompose()
         return self.target
 
 
