@@ -7,21 +7,21 @@ PAGES = {
     'kk': {
         'overview': (
             'https://www.ksi.is/mot/felog/leikir-felaga/?Search=True&'
-            'felag=103&vollur=&flokkur=111&kyn=1&dagsfra=25.04.2019&'
-            'dagstil=10.10.2019'
+            'felag=103&vollur=&flokkur=111&kyn=1&dagsfra=25.04.2020&'
+            'dagstil=10.10.2020'
         ),
         'competition': (
-            'https://www.ksi.is/mot/stakt-mot/?motnumer=38296'
+            'https://www.ksi.is/mot/stakt-mot/?motnumer=40928'
         )
     },
     'kvk': {
         'overview': (
             'https://www.ksi.is/mot/felog/leikir-felaga/?Search=True&'
-            'felag=8099&vollur=&flokkur=111&kyn=0&dagsfra=25.04.2019&'
-            'dagstil=10.10.2019'
+            'felag=103&vollur=&flokkur=111&kyn=0&dagsfra=25.04.2020&'
+            'dagstil=10.10.2020'
         ),
         'competition': (
-            'https://www.ksi.is/mot/stakt-mot/?motnumer=39256'
+            'https://www.ksi.is/mot/stakt-mot/?motnumer=40932'
 
         )
     }
